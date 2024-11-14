@@ -258,7 +258,7 @@ def get_openai_response_evaluator_topnreason(data,prompt):
         response = openai.chat.completions.create(
             model="gpt-4o",  # Replace with your model name,
             max_tokens=300,
-            temperature=1.3,
+            temperature=0.7,
             messages=[
                 {"role": "system", "content": "You are an expert data scientist who answers from given credit card profile analysis of the time series of the performance metric of a customer account"},
                # {"role": "system", "content": sysPrompt},
@@ -270,42 +270,116 @@ def get_openai_response_evaluator_topnreason(data,prompt):
         return  content
     except Exception as e:
         return f"Error: {str(e)}"
+
+
 def analyzeEvaluatorResponse(file_name):
     eval_response=pd.read_csv(file_name,header=0,sep='|')
     df=eval_response[['riskcategory','analysis', 'customer']]
+    list=[]
     for index, row in df.iterrows():
-        if 'High Risk' in row['riskcategory']:
-            print(row['riskcategory'], row['customer'],row['analysis'])
-            prompt=f"""
-                "You are an expert data scientist who answers from given credit card profile analysis of the time series of the performance metric of a customer account
-                 Based on the textual analysis of the narration please print top 1 reasons why this customer became delinquent.
-                 Please note that the reason for customer account to become delinquent can not be delinquincy itself or due to ecl increase as they are the results and not reasons
-                 Put in a dictionary format with key as reason and value as weight of that reason. Please produce no other
-                 data than the final dictionary.
-                """
-            x= get_openai_response_evaluator_topnreason(row['analysis'],prompt)
-            print(x)
-
-file_name=r'C:\Users\PXSharma\Downloads\New folder\pradeep.csv'
+        #if 'High Risk' in row['riskcategory']:
+        print(row['riskcategory'], row['customer'],row['analysis'])
+        tmp=[]
+        prompt=f"""
+            "You are an expert data scientist who answers from given credit card profile analysis of the time series of the performance metric of a customer account
+             Based on the textual analysis of the narration please print top 1 reasons why this customer became delinquent.
+             Please note that the reason for customer account to become delinquent can not be delinquincy itself or due to ecl increase as they are the results and not reasons
+             Print reason string only as output. Please produce no other data except the reason.
+            """
+        x= get_openai_response_evaluator_topnreason(row['analysis'],prompt)
+        tmp.append(row['customer'])
+        tmp.append(x)
+        list.append(tmp)
+        print(x)
+    df=pd.DataFrame(list,columns=['customer','reason'])
+    df.to_csv(r'C:\Users\PXSharma\Downloads\New folder\test_data_seg1.csv',index=False,sep="|")
+file_name=r'C:\Users\PXSharma\Downloads\New folder\Evaluator_testing_data.csv'
 analyzeEvaluatorResponse(file_name)
 
-def get_embedding(text):
-    openai.api_key = "33d4c5bf7f124d05b6c20a849864a752"
-    openai.base_url = "https://genai-openai-profitsentinel.openai.azure.com/openai/deployments/gpt-4o/chat/completions?"
-    # openai.base_url= "https://ai-ibsooraj8752ai916045283496.openai.azure.com/"
-    openai.api_version = "2024-08-01-preview"
-    openai.api_type = "azure"
-    result = client.embeddings.create(
-        model='text-embedding-ada-002',
-        input=text
-    )
-    return result.data[0].embedding
+
+####final file creation for testing data file:
+# df1= pd.read_csv(r'C:\Users\PXSharma\Downloads\Testing Data.csv',sep=',',header=0)
+# cus_list =df1['Customer ID'].unique()
+# df_res=[]
+# for cus in cus_list:
+#     df=df1[df1['Customer ID'] == cus]
+#     pd.set_option('display.max_columns', None)
+#     pd.set_option('display.expand_frame_repr', False)
+#     df.dropna(inplace=True)
+#     print(cus)
+#     context,prompt=createPromptforoutput(df)
+#     x=get_openai_response_evaluator(context,"",prompt)
+#     try:
+#         df_res.append(parseStringtodf(x,cus))
+#     except:
+#         print("Error"+str(cus)+str(x))
+#     #print(cus,x)
+#     print("********")
+#
+# final_result=pd.DataFrame(data=df_res,columns=["probabilityofdefault","riskcategory","earliest_month" ,"comments" ,"analysis","customer"])
+# final_result.to_csv(r'C:\Users\PXSharma\Downloads\New folder\pradeep11.csv',index=False,sep="|")
+# final_result=final_result.apply(lambda x: x.str.strip())
+# final_result.to_csv(r'C:\Users\PXSharma\Downloads\New folder\pradeep1.csv',index=False,sep="|")
+#
+
+# def getColumnEmbeddings(df):
+#     columns_to_select = ['Snapshot Month', 'Customer Age', 'Income Category', 'Month on Book', 'Credit_Limit',
+#                          'Revolving_Bal', 'Utilization',
+#                          'external_bank_credit_card_max_util_greater_than_90',
+#                          'external_bank_credit_card_max_util_greater_than_50',
+#                          'FICO', 'Total_Debt', 'Debt_to_Income_Ratio', 'Credit_Inquiries',
+#                          'Monthly_Interest_Revenue', 'Late_Fee_Revenue', 'Annual_Fee',
+#                          'Cumulative Profit']
+#     map={}
+#     for e in columns_to_select:
+#         x=get_embedding(str(e))
+#         map[e]=x
+#     print(map)
+#
+#
+#
+#
+# def vector_similarity(vec1, vec2):
+#     """
+#     Returns the similarity between two vectors.
+#
+#     Because OpenAI Embeddings are normalized to length 1, the cosine similarity is the same as the dot product.
+#     """
+#     return np.dot(np.array(vec1), np.array(vec2))
+#
+# def get_embedding(text):
+#     openai.api_key = "33d4c5bf7f124d05b6c20a849864a752"
+#     openai.base_url = "https://genai-openai-profitsentinel.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings?"
+#     # openai.base_url= "https://ai-ibsooraj8752ai916045283496.openai.azure.com/"
+#     openai.api_version = "2023-05-15"
+#     openai.api_type = "azure"
+#     result = client.embeddings.create(
+#         model='text-embedding-ada-002',
+#         input=text
+#     )
+#     return result.data[0].embedding
+# def vector_similarity(vec1, vec2):
+#     """
+#     Returns the similarity between two vectors.
+#
+#     Because OpenAI Embeddings are normalized to length 1, the cosine similarity is the same as the dot product.
+#     """
+#     return np.dot(np.array(vec1), np.array(vec2))
+#
+# def getColumnEmbeddings(df):
+#     columns_to_select = ['Snapshot Month', 'Customer Age', 'Income Category', 'Month on Book', 'Credit_Limit',
+#                          'Revolving_Bal', 'Utilization',
+#                          'external_bank_credit_card_max_util_greater_than_90',
+#                          'external_bank_credit_card_max_util_greater_than_50',
+#                          'FICO', 'Total_Debt', 'Debt_to_Income_Ratio', 'Credit_Inquiries',
+#                          'Monthly_Interest_Revenue', 'Late_Fee_Revenue', 'Annual_Fee',
+#                          'Cumulative Profit']
+#     map={}
+#     for e in columns_to_select:
+#         x=get_embedding(str(e))
+#         map[e]=x
+#     print(map)
 
 
-def vector_similarity(vec1, vec2):
-    """
-    Returns the similarity between two vectors.
 
-    Because OpenAI Embeddings are normalized to length 1, the cosine similarity is the same as the dot product.
-    """
-    return np.dot(np.array(vec1), np.array(vec2))
+
