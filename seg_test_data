@@ -1,71 +1,71 @@
 customer|reason
-708155740|Based on the provided data, the customer did not become delinquent.
-708155741|The customer did not become delinquent.
-708155743|Based on the provided data, the customer exhibits a low risk profile.
-708155744|The earliest month where MoM Cumulative Profit is negative is December 2022.
-1708155744|There are no delinquency incidents.
-708155745|There is no reason for delinquency.
-1708155745|There is no evidence that this customer became delinquent.
-708155746|The customer has not become delinquent.
-708155748|The earliest month where a negative MoM Cumulative Profit was observed is April 2021.
-708155749|The customer has not become delinquent.
-708155750|The customer has not become delinquent.
+708155740|The earliest month where a decrease in cumulative profit was observed is February 2021.
+708155741|No significant increases in utilization.
+708155743|Not applicable.
+708155744|No credit inquiries.
+1708155744|N/A
+708155745|a significant decrease in cumulative profit
+1708155745|There were no credit inquiries or total debt reported.
+708155746|There are no significant changes in total debt or debt-to-income ratio.
+708155748|Not applicable
+708155749|The customer did not experience significant financial stress.
+708155750|decrease in cumulative profit
 708155751|The most significant deviation was observed in October 2022, where the cumulative profit decreased by more than 1%, triggering the need for monitoring.
-708155752|There is no indication that this customer became delinquent.
-708155753|This customer did not become delinquent.
-708155754|cumulative profit shows a significant decrease
-708155755|There are no delinquencies.
-708155756|a significant decrease in cumulative profit
-708155758|There is no indication that the customer has become delinquent.
-708155759|There is no indication in the provided analysis that the customer became delinquent.
-708155760|There are no credit inquiries.
-708155761|The customer has not become delinquent.
-708155763|The customer has not become delinquent.
-708155764|There is no indication that this customer became delinquent.
-1708155764|There is no indication that the customer became delinquent.
-708155765|Based on the given analysis, there is no indication that the customer has become delinquent.
-708155766|There is no indication that the customer has become delinquent.
+708155752|There is no significant risk factor evident from the given profile.
+708155753|No significant deviations in the ECL MoM Change.
+708155754|The cumulative profit shows a significant decrease in October 2024.
+708155755|There are no credit inquiries or total debt.
+708155756|A significant decrease in cumulative profit observed in September 2022.
+708155758|There are no credit inquiries.
+708155759|The only significant deviation was in July 2022.
+708155760|Significant deviation in cumulative profit in June 2023
+708155761|The utilization rate has remained below 40%.
+708155763|There are no significant deviations in financial behavior.
+708155764|No significant increases in debt-to-income ratio or external bank credit card utilization
+1708155764|No credit inquiries
+708155765|There is no significant reason found.
+708155766|There is no indication from the given profile analysis that the customer became delinquent or has become high risk.
 708155767|a significant decrease in cumulative profit was observed
-708155768|The customer has not become delinquent.
-100873|Substantial increase in total debt.
-100874|unsustainable debt burden
-100875|significant increase in total debt
-100876|Utilization rate and total debt have increased dramatically
+708155768|The most notable decrease in cumulative profit occurs in October 2023.
+100873|substantial increase in total debt
+100874|High dependency on credit.
+100875|Increased debt
+100876|Utilization rate increased dramatically
 100877|The debt-to-income ratio also increased dramatically, indicating a severe strain on the customer’s financial capacity.
-100878|Significant increase in utilization and total debt.
-100879|sharp increase in utilization
-100880|High dependency on credit
-100881|Increase in revolving balance and debt-to-income ratio
-100882|increase in utilization and total debt
-105383|increase in revolving balance and utilization
-105384|significant rise in revolving balance and utilization
+100878|Significant increase in utilization
+100879|A sharp increase in utilization.
+100880|Significant negative trends in key financial indicators
+100881|A noticeable increase in revolving balance.
+100882|Increased utilization and total debt.
+105383|increased utilization
+105384|A notable increase in revolving balance and utilization
 105385|high utilization (99%)
-105386|The customer’s financial risk has significantly increased over the past months, with notable deviations in key financial indicators.
-105387|marked increase in revolving balance and utilization
-105388|A substantial increase in total debt and debt-to-income ratio.
-105389|Increased utilization
-105390|Increase in revolving balance and utilization
-105391|a sharp increase in revolving balance and utilization
+105386|Over-leverage due to high utilization rate.
+105387|a marked increase in revolving balance and utilization
+105388|Substantial increase in total debt and debt-to-income ratio.
+105389|increased utilization
+105390|Notable increase in revolving balance and utilization.
+105391|sharp increase in revolving balance and utilization
 105392|High dependency on credit.
-105393|increased revolving balance and utilization
-133894|A substantial increase in revolving balance and utilization.
+105393|High utilization
+133894|Substantial increase in utilization
 133895|Significant increase in revolving balance and utilization
 133896|Increased debt and inability to manage repayments.
-133897|Notable increase in revolving balance and utilization
-133898|significant increase in revolving balance
+133897|Increase in revolving balance and utilization
+133898|Sharp increase in revolving balance
 133899|Increased revolving balance.
-133900|high utilization
+133900|High utilization
 133901|High utilization
 133902|Sharp increase in revolving balance
-133903|Revolving balance increased dramatically
-133904|increased utilization
-101709|"customer's income category dropped to ""Less than $40k"""
-101710|Increased utilization rate
-101712|Increased debt-to-income ratio
+133903|High utilization rate
+133904|Increased utilization
+101709|"The customer's income category dropped to ""Less than $40k"""
+101710|The customer’s utilization rate spiked.
+101712|The customer’s utilization rate spiked.
 101713|Higher credit usage
-101714|increased revolving balance
-101715|The customer’s revolving balance increased dramatically from $0 to over $16,000.
-101716|High utilization of their credit limit.
-101717|Increased revolving balance
-101718|Sharp increase in utilization
-101719|Increased financial stress
+101714|Increased revolving balance and utilization rate.
+101715|"The customer’s income category changed to ""Less than $40k"""
+101716|Increased debt relative to income
+101717|Increased revolving balance and utilization rate.
+101718|Higher financial stress
+101719|Debt levels becoming unmanageable relative to their income
