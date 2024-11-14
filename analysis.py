@@ -80,16 +80,14 @@ def createPromptforoutput(df):
     earliest_month
     comments (recommendations)
     analysis (200-word detailed analysis)
-    Please provide only the table without additional text.
+    Please provide only the table without any additional plain text in table format.
                         """
     return y,prompt
 
-def parseStringtodf(st):
+def parseStringtodf(st,cust):
     lines=st.split('\n')
     data=str(lines[2])[1:-1].split('|')
-    columnsq=str(lines[0])[1:-1].split('|')
-    data = pd.DataFrame([data])
-    data.columns=columnsq
+    data.append(cust)
     return data
 
 def get_openai_response_evaluator(context, sysPrompt,prompt):
@@ -111,17 +109,35 @@ def get_openai_response_evaluator(context, sysPrompt,prompt):
     except Exception as e:
         return f"Error: {str(e)}"
 
+def get_embedding(text):
+    client = OpenAI()
+    result = client.embeddings.create(
+        model='text-embedding-ada-002',
+        input=text
+    )
+    return result.data[0].embedding
 
-def get_openai_response_for_parameters(context, param_list):
 
-    res={}
+def vector_similarity(vec1, vec2):
+    """
+    Returns the similarity between two vectors.
+
+    Because OpenAI Embeddings are normalized to length 1, the cosine similarity is the same as the dot product.
+    """
+    return np.dot(np.array(vec1), np.array(vec2))
+def get_openai_response_for_embedding(context):
+    # openai.api_key = "33d4c5bf7f124d05b6c20a849864a752"
+    # openai.base_url = "https://genai-openai-profitsentinel.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings?"
+    # openai.api_version = "api-version=2023-05-15"
+    # openai.api_type = "azure"
+    res = {}
     try:
         for param in param_list:
             prompt = f"""
-                Based on the time series data for the performance and the risk metrics of a customer account based on different factors create a summary analysis of customer profile
-                in 200 words for {param} giving it max weightage for analysis.
-                Please use the facts to cross check and make sure that the summary is accurately reflecting the facts provided by the contextual snapshot month on month data 
-    
+                Based on the time series data for the performance and the risk metrics of a customer account based on different factors create a summary analysis of customer profile and behavior
+                in 300 words maximum for {param} giving it max weightage for analysis.
+                Please use the facts to cross check and make sure that the summary is accurately reflecting the facts provided by the contextual snapshot month on month data in only 300 words 
+
                 """
             print(prompt)
             response = openai.chat.completions.create(
@@ -132,7 +148,8 @@ def get_openai_response_for_parameters(context, param_list):
                     {"role": "system",
                      "content": "You are an expert data scientist who answers from given context of the month on month data"},
                     # {"role": "system", "content": sysPrompt},
-                    {"role": "user", "content": "Context: " + context.to_json(orient="records") + "\n\n Query: " + prompt}
+                    {"role": "user",
+                     "content": "Context: " + context.to_json(orient="records") + "\n\n Query: " + prompt}
                 ]
             )
             x = response.choices[0].message.content
@@ -142,30 +159,153 @@ def get_openai_response_for_parameters(context, param_list):
     except Exception as e:
         return f"Error: {str(e)}"
 
-with pd.ExcelFile(r'C:\Users\PXSharma\Downloads\SecretSecret-main\SecretSecret-main\Corrected Account Examples.xlsx') as f:
-    sheets = f.sheet_names
-    param_list=['FICO', 'Credit_Inquiries']
-    df_res=pd.DataFrame()
-    for sht in sheets:
-        print(sht)
-        if 'Customer B' in sht:
-            df = f.parse(sht)
-            pd.set_option('display.max_columns', None)
-            pd.set_option('display.expand_frame_repr', False)
-            df.drop(index=0)
-            df = df.iloc[:,0:27]
-            header=df.iloc[0].tolist()
-            df=df.iloc[1:,:]
-            df.columns=header
-            df.dropna(inplace=True)
-            #df = df.iloc[-36:, :]
-            #df['Snapshot Month']=pd.to_datetime(df['Snapshot Month'])
-            #df=df[pd.to_datetime(df['Snapshot Month'])>'2018-01-01']
-            context,prompt=createPromptforoutput(df)
-            # print(context)
-            # print(prompt)print
-            # x=get_openai_response_evaluator(context,"",prompt)
-            # x1=parseStringtodf(x)
-            x=get_openai_response_for_parameters(context, param_list)
+
+def get_openai_response_for_parameters(context, param_list,customer):
+
+    res={"customer":customer}
+    try:
+        for param in param_list:
+            prompt = f"""
+                          "You are a data scientist working for a major bank with access to monthly customer financial and risk performance data. Your goal is to categorize the customer’s financial risk, calculate their probability of default (PD), and analyze significant deviations from their expected financial behavior. For this task, focus on Month-over-Month (MoM) cumulative profit as the primary criterion for assessing financial risk.
+
+Snapshot Month Data:
+Customer Age
+Income Category
+Months on Book
+Credit Limit
+Revolving Balance (Revolving_Bal)
+Utilization
+External Bank Credit Card Utilization (>90% and >50%)
+FICO Score
+Total Debt
+Debt-to-Income Ratio
+Credit Inquiries
+Delinquency
+Monthly Interest Revenue
+Late Fee Revenue
+Annual Fee
+ECL MoM Change
+Cumulative Profit
+Risk Categorization Instructions:
+Financial Risk Classification:
+Categorize the customer’s financial risk based on the following data points, with a particular focus on how {param} impact MoM cumulative profit. Specifically, analyze how {param} correlate with the changes in MoM cumulative profit.
+{context}
+Summary Profile:
+Construct a summary profile for the customer, focusing on the most relevant parameters from the list above. Be sure to highlight how Credit Inquiries influence the MoM cumulative profit. Ensure that the summary reflects the data provided for each month in the snapshot.
+
+Cross-Check Data:
+Cross-check the summary to ensure it aligns with the given financial data. Verify the summary against the values for Credit Inquiries and the MoM Cumulative Profit to ensure consistency and accuracy.
+
+Conciseness:
+Limit the summary to 300 words, ensuring that it remains focused on the impact of Credit Inquiries on financial behavior and the MoM cumulative profit change.
+
+Key Focus:
+Prioritize analyzing the impact of {param} on MoM Cumulative Profit.
+Be precise and ensure the summary is data-driven, using actual numbers from the snapshot month."
+                           """
+            print(prompt)
+            # response = openai.chat.completions.create(
+            #     model="gpt-4o",  # Replace with your model name,
+            #     max_tokens=250,
+            #     temperature=0.1,
+            #     messages=[
+            #         {"role": "system",
+            #          "content": "You are an expert data scientist who answers from given context of the month on month data"},
+            #         # {"role": "system", "content": sysPrompt},
+            #         {"role": "user", "content": "Context: " + context.to_json(orient="records") + "\n\n Query: " + prompt}
+            #     ]
+            # )
+            # x = response.choices[0].message.content
+            # print(param,x)
+            # res[param] = x
+        # print(content)
+        return res
+    except Exception as e:
+        return f"Error: {str(e)}"
+def create_evaluator_response():
+    with pd.ExcelFile(r'C:\Users\PXSharma\Downloads\SecretSecret-main\SecretSecret-main\Corrected Account Examples.xlsx') as f:
+        sheets = f.sheet_names
+        param_list=['FICO', 'Credit_Inquiries', 'FICO, Credit_Inquiries']
+        df_res=[]
+        for sht in sheets:
+            print(sht)
+            if 'C' in sht:
+                df = f.parse(sht)
+                pd.set_option('display.max_columns', None)
+                pd.set_option('display.expand_frame_repr', False)
+                df.drop(index=0)
+                df = df.iloc[:,0:27]
+                header=df.iloc[0].tolist()
+                df=df.iloc[1:,:]
+                df.columns=header
+                df.dropna(inplace=True)
+                context,prompt=createPromptforoutput(df)
+                x=get_openai_response_evaluator(context,"",prompt)
+                df_res.append(parseStringtodf(x,sht))
+                #x=get_openai_response_for_parameters(context, param_list,sht)
+                print(x)
+                print("********")
+        final_result=pd.DataFrame(data=df_res,columns=["probabilityofdefault","riskcategory","earliest_month" ,"comments" ,"analysis","customer"])
+        final_result=final_result.apply(lambda x: x.str.strip())
+        final_result.to_csv(r'C:\Users\PXSharma\Downloads\New folder\pradeep.csv',index=False,sep="|")
+
+
+
+
+##Working code below
+def get_openai_response_evaluator_topnreason(data,prompt):
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4o",  # Replace with your model name,
+            max_tokens=300,
+            temperature=1.3,
+            messages=[
+                {"role": "system", "content": "You are an expert data scientist who answers from given credit card profile analysis of the time series of the performance metric of a customer account"},
+               # {"role": "system", "content": sysPrompt},
+                {"role": "user", "content": "Context: " +  data + "\n\n Query: " + prompt}
+            ]
+        )
+        x=response.choices[0].message.content
+        content = x
+        return  content
+    except Exception as e:
+        return f"Error: {str(e)}"
+def analyzeEvaluatorResponse(file_name):
+    eval_response=pd.read_csv(file_name,header=0,sep='|')
+    df=eval_response[['riskcategory','analysis', 'customer']]
+    for index, row in df.iterrows():
+        if 'High Risk' in row['riskcategory']:
+            print(row['riskcategory'], row['customer'],row['analysis'])
+            prompt=f"""
+                "You are an expert data scientist who answers from given credit card profile analysis of the time series of the performance metric of a customer account
+                 Based on the textual analysis of the narration please print top 1 reasons why this customer became delinquent.
+                 Please note that the reason for customer account to become delinquent can not be delinquincy itself or due to ecl increase as they are the results and not reasons
+                 Put in a dictionary format with key as reason and value as weight of that reason. Please produce no other
+                 data than the final dictionary.
+                """
+            x= get_openai_response_evaluator_topnreason(row['analysis'],prompt)
             print(x)
-            print("********")
+
+file_name=r'C:\Users\PXSharma\Downloads\New folder\pradeep.csv'
+analyzeEvaluatorResponse(file_name)
+
+def get_embedding(text):
+    openai.api_key = "33d4c5bf7f124d05b6c20a849864a752"
+    openai.base_url = "https://genai-openai-profitsentinel.openai.azure.com/openai/deployments/gpt-4o/chat/completions?"
+    # openai.base_url= "https://ai-ibsooraj8752ai916045283496.openai.azure.com/"
+    openai.api_version = "2024-08-01-preview"
+    openai.api_type = "azure"
+    result = client.embeddings.create(
+        model='text-embedding-ada-002',
+        input=text
+    )
+    return result.data[0].embedding
+
+
+def vector_similarity(vec1, vec2):
+    """
+    Returns the similarity between two vectors.
+
+    Because OpenAI Embeddings are normalized to length 1, the cosine similarity is the same as the dot product.
+    """
+    return np.dot(np.array(vec1), np.array(vec2))
