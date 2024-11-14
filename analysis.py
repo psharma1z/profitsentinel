@@ -258,7 +258,7 @@ def get_openai_response_evaluator_topnreason(data,prompt):
         response = openai.chat.completions.create(
             model="gpt-4o",  # Replace with your model name,
             max_tokens=300,
-            temperature=0.7,
+            temperature=0.8,
             messages=[
                 {"role": "system", "content": "You are an expert data scientist who answers from given credit card profile analysis of the time series of the performance metric of a customer account"},
                # {"role": "system", "content": sysPrompt},
@@ -282,7 +282,7 @@ def analyzeEvaluatorResponse(file_name):
         tmp=[]
         prompt=f"""
             "You are an expert data scientist who answers from given credit card profile analysis of the time series of the performance metric of a customer account
-             Based on the textual analysis of the narration please print top 1 reasons why this customer became delinquent.
+             Based on the textual analysis of the narration please print top 1 reasons why this customer became delinquent or becomes high risk.
              Please note that the reason for customer account to become delinquent can not be delinquincy itself or due to ecl increase as they are the results and not reasons
              Print reason string only as output. Please produce no other data except the reason.
             """
@@ -293,7 +293,13 @@ def analyzeEvaluatorResponse(file_name):
         print(x)
     df=pd.DataFrame(list,columns=['customer','reason'])
     df.to_csv(r'C:\Users\PXSharma\Downloads\New folder\test_data_seg1.csv',index=False,sep="|")
-file_name=r'C:\Users\PXSharma\Downloads\New folder\Evaluator_testing_data.csv'
+file_name=r'C:\Users\PXSharma\Downloads\New folder\eval_test_data_final.csv'
+# df_data= pd.read_csv(file_name,header=0,sep='|')
+# df_obj = df_data.select_dtypes('object')
+# df_data[df_obj.columns] = df_obj.apply(lambda x: x.str.strip())
+# print(df_data)
+# df_data.to_csv(r'C:\Users\PXSharma\Downloads\New folder\eval_test_data1.csv',index=False,sep="|")
+
 analyzeEvaluatorResponse(file_name)
 
 
